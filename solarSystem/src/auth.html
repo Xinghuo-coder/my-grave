@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>太阳系可视化 - 登录</title>
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+  <div class="stars"></div>
+  <div class="twinkling"></div>
+  
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1>🌌 太阳系可视化</h1>
+        <p class="subtitle">Solar System Visualization</p>
+      </div>
+
+      <!-- 登录表单 -->
+      <div id="login-form" class="auth-form active">
+        <h2>登录</h2>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="login-username">用户名</label>
+            <input type="text" id="login-username" name="username" required placeholder="请输入用户名">
+          </div>
+          <div class="form-group">
+            <label for="login-password">密码</label>
+            <input type="password" id="login-password" name="password" required placeholder="请输入密码">
+          </div>
+          <button type="submit" class="btn btn-primary">登录</button>
+        </form>
+        <div class="auth-footer">
+          <a href="#" class="link" onclick="showForm('register')">还没有账号？立即注册</a>
+          <a href="#" class="link" onclick="showForm('forgot')">忘记密码？</a>
+        </div>
+      </div>
+
+      <!-- 注册表单 -->
+      <div id="register-form" class="auth-form">
+        <h2>注册</h2>
+        <form id="registerForm">
+          <div class="form-group">
+            <label for="reg-username">用户名</label>
+            <input type="text" id="reg-username" name="username" required placeholder="请输入用户名">
+          </div>
+          <div class="form-group">
+            <label for="reg-email">邮箱</label>
+            <div class="input-with-btn">
+              <input type="email" id="reg-email" name="email" required placeholder="请输入邮箱">
+              <button type="button" class="btn-code" onclick="sendCode('email', 'register')" id="email-code-btn">获取验证码</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="reg-email-code">邮箱验证码</label>
+            <input type="text" id="reg-email-code" name="emailCode" required placeholder="请输入邮箱验证码" maxlength="6">
+          </div>
+          <div class="form-group">
+            <label for="reg-phone">手机号（选填）</label>
+            <input type="tel" id="reg-phone" name="phone" placeholder="用于账号找回，可不填" pattern="[0-9]{11}">
+            <small class="form-hint">💡 手机号作为安全信息，用于账号找回</small>
+          </div>
+          <div class="form-group">
+            <label for="reg-password">密码</label>
+            <input type="password" id="reg-password" name="password" required placeholder="至少6位" minlength="6">
+          </div>
+          <div class="form-group">
+            <label for="reg-security-question">安全问题</label>
+            <select id="reg-security-question" name="securityQuestion" required>
+              <option value="">请选择安全问题</option>
+              <option value="您的出生地是？">您的出生地是？</option>
+              <option value="您母亲的姓名是？">您母亲的姓名是？</option>
+              <option value="您的小学名称是？">您的小学名称是？</option>
+              <option value="您最喜欢的电影是？">您最喜欢的电影是？</option>
+              <option value="您的宠物名字是？">您的宠物名字是？</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="reg-security-answer">安全问题答案</label>
+            <input type="text" id="reg-security-answer" name="securityAnswer" required placeholder="请输入答案">
+          </div>
+          <button type="submit" class="btn btn-primary">注册</button>
+        </form>
+        <div class="auth-footer">
+          <a href="#" class="link" onclick="showForm('login')">已有账号？立即登录</a>
+        </div>
+      </div>
+
+      <!-- 忘记密码表单 -->
+      <div id="forgot-form" class="auth-form">
+        <h2>找回密码</h2>
+        
+        <!-- 步骤1：输入用户名 -->
+        <div id="forgot-step1" class="forgot-step active">
+          <form id="forgotStep1Form">
+            <div class="form-group">
+              <label for="forgot-username">用户名</label>
+              <input type="text" id="forgot-username" name="username" required placeholder="请输入用户名">
+            </div>
+            <button type="submit" class="btn btn-primary">下一步</button>
+          </form>
+        </div>
+
+        <!-- 步骤2：验证安全问题 -->
+        <div id="forgot-step2" class="forgot-step">
+          <form id="forgotStep2Form">
+            <div class="form-group">
+              <label>安全问题</label>
+              <p id="security-question-display" class="security-question"></p>
+            </div>
+            <div class="form-group">
+              <label for="security-answer">答案</label>
+              <input type="text" id="security-answer" name="answer" required placeholder="请输入答案">
+            </div>
+            <button type="submit" class="btn btn-primary">验证</button>
+          </form>
+        </div>
+
+        <!-- 步骤3：邮箱验证 -->
+        <div id="forgot-step3" class="forgot-step">
+          <form id="forgotStep3Form">
+            <div class="form-group">
+              <label>验证方式</label>
+              <div class="verification-note">
+                <p>通过邮箱验证码重置密码</p>
+                <p id="masked-email" class="masked-info"></p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>邮箱验证码</label>
+              <div class="input-with-btn">
+                <input type="text" id="reset-code" name="code" required placeholder="请输入验证码" maxlength="6">
+                <button type="button" class="btn-code" onclick="sendResetCode()" id="reset-code-btn">获取验证码</button>
+              </div>
+              <small class="form-hint">💡 验证码将发送到您的注册邮箱</small>
+            </div>
+            <div class="form-group">
+              <label for="new-password">新密码</label>
+              <input type="password" id="new-password" name="newPassword" required placeholder="至少6位" minlength="6">
+            </div>
+            <div class="form-group">
+              <label for="confirm-password">确认密码</label>
+              <input type="password" id="confirm-password" name="confirmPassword" required placeholder="再次输入新密码">
+            </div>
+            <button type="submit" class="btn btn-primary">重置密码</button>
+          </form>
+        </div>
+
+        <div class="auth-footer">
+          <a href="#" class="link" onclick="showForm('login')">返回登录</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 提示消息 -->
+    <div id="message" class="message"></div>
+  </div>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>

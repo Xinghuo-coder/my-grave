@@ -1,0 +1,23 @@
+{
+  "name": "solar-system-workspace",
+  "version": "1.0.0",
+  "description": "Solar System 3D Visualization - Workspace Root",
+  "private": true,
+  "scripts": {
+    "install": "cd solarSystem && npm install",
+    "test": "cd solarSystem && npm test",
+    "build": "cd solarSystem && npm run build",
+    "dev": "cd solarSystem && npm run dev",
+    "server": "cd solarSystem && npm run server",
+    "server:dev": "cd solarSystem && npm run server:dev",
+    "start": "cd solarSystem && npm start",
+    "migrate:mysql": "cd solarSystem && npm run migrate:mysql",
+    "docker:build": "cd solarSystem && npm run docker:build",
+    "docker:run": "cd solarSystem && npm run docker:run",
+    "docker:stop": "cd solarSystem && npm run docker:stop",
+    "docker:logs": "cd solarSystem && npm run docker:logs"
+  },
+  "keywords": ["threejs", "3d", "solar-system", "webgl"],
+  "author": "SoftPx",
+  "license": "ISC"
+}

@@ -1,0 +1,78 @@
+{
+  "name": "threejs-solar-system",
+  "version": "1.0.0",
+  "description": "基于 Three.js 的交互式 3D 太阳系可视化项目",
+  "main": "dist/js/main.js",
+  "keywords": [
+    "threejs",
+    "3d",
+    "solar-system",
+    "webgl",
+    "visualization",
+    "planets",
+    "astronomy"
+  ],
+  "scripts": {
+    "test": "node test-auth.js",
+    "test:auth": "node test-auth.js",
+    "migrate:mysql": "node server/database/migrate-to-mysql.js",
+    "docker:build": "docker build -t solar-system:latest .",
+    "docker:run": "docker-compose up -d",
+    "docker:stop": "docker-compose down",
+    "docker:logs": "docker-compose logs -f app",
+    "copy:assets": "cp src/auth.html dist/auth.html && cp -r src/css dist/css",
+    "clean": "rm -rf ./dist/js/main.js*",
+    "prebuild": "npm run clean",
+    "build": "webpack --config ./config/webpack.prod.js && npm run copy:assets",
+    "postbuild": "open ./dist",
+    "predev": "npm run clean && npm run copy:assets",
+    "dev": "webpack serve --config ./config/webpack.dev.js",
+    "format": "prettier --write \"src/**/*.{js,json,css}\"",
+    "format:check": "prettier --check \"src/**/*.{js,json,css}\"",
+    "server": "node server/index.js",
+    "server:dev": "nodemon server/index.js",
+    "start": "concurrently \"npm run server:dev\" \"npm run dev\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/solar-system"
+  },
+  "author": "SoftPx",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.0.0",
+    "javascript-obfuscator": "^4.1.0",
+    "nodemon": "^3.0.0",
+    "prettier": "^3.0.0",
+    "webpack": "^5.37.1",
+    "webpack-cli": "^4.7.0",
+    "webpack-dev-server": "^3.11.2",
+    "webpack-obfuscator": "^3.6.0"
+  },
+  "dependencies": {
+    "@google-cloud/secret-manager": "^5.0.0",
+    "@tweenjs/tween.js": "^18.6.4",
+    "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-mysql-session": "^3.0.0",
+    "express-rate-limit": "^7.0.0",
+    "express-session": "^1.17.0",
+    "glslify": "^7.1.1",
+    "helmet": "^7.0.0",
+    "hpp": "^0.2.3",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.6.0",
+    "response-time": "^2.3.2",
+    "sqlite3": "^5.1.0",
+    "three": "^0.170.0",
+    "xss-clean": "^0.1.4"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
