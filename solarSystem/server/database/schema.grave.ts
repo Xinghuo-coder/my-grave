@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS grave_blocks (
   
   grave_id INT COMMENT '关联的坟墓ID',
   is_occupied BOOLEAN DEFAULT false COMMENT '是否已被占用',
+  is_reserved BOOLEAN DEFAULT false COMMENT '是否为保留地块（前5%或后5%）',
   
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -69,10 +70,11 @@ CREATE TABLE IF NOT EXISTS grave_blocks (
   FOREIGN KEY (grave_id) REFERENCES graves(id) ON DELETE SET NULL,
   UNIQUE KEY unique_grave_id (grave_id),
   INDEX idx_is_occupied (is_occupied),
+  INDEX idx_is_reserved (is_reserved),
   INDEX idx_block_code (block_code),
   INDEX idx_location (latitude, longitude)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='地块信息表';
+COMMENT='地块信息表，系统保留地块编号的前5%和后5%不对用户开放';
 `;
 
 // 评论表（可选）

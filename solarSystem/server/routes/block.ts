@@ -4,12 +4,15 @@
  * 端点说明：
  * GET  /api/blocks/:blockId         - 获取地块信息和关联的坟墓
  * GET  /api/blocks/search           - 搜索地块（按编号或位置）
- * GET  /api/blocks/available        - 获取未被占用的地块
+ * GET  /api/blocks/available        - 获取未被占用的地块（不包括保留地块）
  * POST /api/blocks                  - 创建地块（管理员）
+ * 
+ * 重要：系统保留地块编号的前5%和后5%，这些地块的信息对用户查询时会被过滤
  */
 
 import express, { Router, Request, Response } from 'express';
-import type { BlockSearchRequest } from '../types/block';
+import type { BlockSearchRequest, GraveBlock } from '../types/block';
+import { BLOCK_RANGE_CONFIG } from '../types/block';
 
 const router = Router();
 
@@ -17,10 +20,25 @@ const router = Router();
  * 获取地块详情
  */
 router.get('/:blockId', (req: Request, res: Response) => {
+  const blockId = parseInt(req.params.blockId);
+
   // TODO: 实现逻辑
-  // 1. 从数据库查询地块信息
-  // 2. 如果有关联的坟墓，获取坟墓信息（如果公开或用户有权限）
-  // 3. 返回地块信息
+  // 1. 验证 blockId 是否有效
+  // 2. 从数据库查询地块信息
+  // 3. 检查地块是否为保留地块 - 如果是，返回错误
+  // 4. 如果有关联的坟墓，获取坟墓信息（如果公开或用户有权限）
+  // 5. 返回地块信息
+
+  // 示例：检查是否为保留地块
+  const isReserved = BLOCK_RANGE_CONFIG.isBlockReserved(blockId);
+  if (isReserved) {
+    return res.status(403).json({
+      success: false,
+      status: 403,
+      message: '该地块为保留地块，不对用户开放',
+      timestamp: new Date().toISOString()
+    });
+  }
 
   res.json({
     success: true,
@@ -44,7 +62,8 @@ router.get('/search/byCode', (req: Request, res: Response) => {
   // TODO: 实现逻辑
   // 1. 验证地块编号格式
   // 2. 从数据库查询地块
-  // 3. 返回地块信息
+  // 3. 检查地块是否为保留地块 - 如果是，拒绝返回
+  // 4. 返回地块信息
 
   if (!blockCode) {
     return res.status(400).json({
@@ -97,17 +116,23 @@ router.get('/search/byLocation', (req: Request, res: Response) => {
 });
 
 /**
- * 获取未被占用的地块列表
+ * 获取未被占用的地块列表（不包括保留地块）
  */
 router.get('/available', (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 20;
 
   // TODO: 实现逻辑
-  // 1. 从数据库查询 is_occupied = false 的地块
-  // 2. 分页处理
-  // 3. 返回地块列表
+  // 1. 从数据库查询 is_occupied = false 且 is_reserved = false 的地块
+  // 2. 确保只返回用户可用范围内的地块：
+  //    SELECT ... WHERE is_occupied = false 
+  //                 AND block_id >= ? AND block_id <= ?
+  //    其中 ? 为 BLOCK_RANGE_CONFIG.getReservedRanges() 的 userMin 和 userMax
+  // 3. 分页处理
+  // 4. 返回地块列表
 
+  const ranges = BLOCK_RANGE_CONFIG.getReservedRanges();
+  
   res.json({
     success: true,
     status: 200,
@@ -116,7 +141,12 @@ router.get('/available', (req: Request, res: Response) => {
       blocks: [],
       total: 0,
       page,
-      limit
+      limit,
+      availableRange: {
+        min: ranges.userMin,
+        max: ranges.userMax,
+        reservedInfo: `前 5% (${ranges.minReserved}-${ranges.maxReserved1}) 和后 5% (${ranges.minReserved2}-${ranges.maxReserved2}) 的地块被保留`
+      }
     },
     timestamp: new Date().toISOString()
   });

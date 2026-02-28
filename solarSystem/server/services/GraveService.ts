@@ -3,13 +3,15 @@
  */
 
 import type { GraveInfo, CreateGraveRequest, UpdateGraveRequest, SocialAccount } from '../types/grave';
+import type { GraveBlock } from '../types/block';
+import { BLOCK_RANGE_CONFIG } from '../types/block';
 import { UserRole } from '../types/user';
 
 export class GraveService {
   /**
    * 验证是否可以创建坟墓
    */
-  static validateCanCreateGrave(role: UserRole, userGraveCount: number): { valid: boolean; error?: string } {
+  static validateCanCreateGrave(role: UserRole, userGraveCount: number, blockId?: number): { valid: boolean; error?: string } {
     if (role !== UserRole.USER) {
       return {
         valid: false,
@@ -21,6 +23,14 @@ export class GraveService {
       return {
         valid: false,
         error: '每个账号只能创建一个坟墓。'
+      };
+    }
+
+    // 验证地块是否在保留范围内
+    if (blockId !== undefined && !BLOCK_RANGE_CONFIG.isBlockAvailableForUser(blockId)) {
+      return {
+        valid: false,
+        error: '选择的地块被保留，不对用户开放。请选择其他地块。'
       };
     }
 
@@ -151,6 +161,27 @@ export class GraveService {
     }
 
     return filtered;
+  }
+
+  /**
+   * 验证地块是否对用户可用
+   */
+  static validateBlockAvailability(block: GraveBlock): { valid: boolean; error?: string } {
+    if (block.isReserved) {
+      return {
+        valid: false,
+        error: '该地块为保留地块，不对用户开放。'
+      };
+    }
+
+    if (block.isOccupied) {
+      return {
+        valid: false,
+        error: '该地块已被占用，请选择其他地块。'
+      };
+    }
+
+    return { valid: true };
   }
 
   /**
