@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ES6",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "jsx": "react",
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@js/*": ["src/js/*"],
+      "@css/*": ["src/css/*"],
+      "@config/*": ["src/config/*"]
+    },
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["src/**/*", "server/**/*"],
+  "exclude": ["node_modules", "dist", "webpack.config.js", "**/*.test.ts"],
+  "ts-node": {
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  }
+}

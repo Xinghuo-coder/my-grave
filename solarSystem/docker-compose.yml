@@ -11,7 +11,7 @@ services:
   # ========================================
   mysql:
     image: mysql:8.0
-    container_name: solar-system-mysql
+    container_name: mygrave-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root_password_dev
