@@ -3,6 +3,8 @@ const router = express.Router();
 const UserService = require('../services/UserService');
 const VerificationCodeService = require('../services/VerificationCodeService');
 const VerificationService = require('../services/verificationService');
+const { GravePurchaseService } = require('../services/GravePurchaseService');
+const { GraveFlowerService } = require('../services/GraveFlowerService');
 
 // ============ 注册相关 ============
 
@@ -103,6 +105,27 @@ router.post('/register', async (req, res) => {
       securityAnswer
     });
 
+    // 为新用户初始化墓地配额（注册自动分配免费墓地）
+    try {
+      await GravePurchaseService.initializeUserQuota(user.id);
+      const config = await GravePurchaseService.getConfig() || await GravePurchaseService.initializeConfig();
+      if (config && config.freeGravesPerUser > 0) {
+        await GravePurchaseService.allocateFreeGraves(user.id, config.freeGravesPerUser);
+        await GravePurchaseService.recordFreeGraveAllocation(user.id, null, 'account_registration');
+      }
+    } catch (quotaError) {
+      console.error('初始化用户墓地配额错误:', quotaError);
+      // 配额初始化失败不影响注册，但记录错误
+    }
+
+    // 初始化鲜花配置（全局仅初始化一次）
+    try {
+      await GraveFlowerService.initializeFlowerConfig();
+    } catch (flowerError) {
+      console.error('初始化鲜花配置错误:', flowerError);
+      // 鲜花配置初始化失败不影响注册，但记录错误
+    }
+
     // 更新验证状态
     await User.updateVerificationStatus(user.id, 'email', true);
     await User.updateVerificationStatus(user.id, 'phone', true);
@@ -128,6 +151,7 @@ router.post('/register', async (req, res) => {
       message: error.code === 'SQLITE_CONSTRAINT' ? '邮箱或手机号已被注册' : '注册失败，请重试'
     });
   }
+});
 });
 
 // ============ 登录相关 ============

@@ -7,12 +7,18 @@ import type { GraveBlock } from '../types/block';
 import { BLOCK_RANGE_CONFIG } from '../types/block';
 import { UserRole } from '../types/user';
 import { GraveEncryptionService } from './GraveEncryptionService';
+import { GravePurchaseService } from './GravePurchaseService';
 
 export class GraveService {
   /**
    * 验证是否可以创建坟墓
+   * 注：现在支持基于用户购买配额的多个坟墓
    */
-  static validateCanCreateGrave(role: UserRole, userGraveCount: number, blockId?: number): { valid: boolean; error?: string } {
+  static async validateCanCreateGrave(
+    role: UserRole, 
+    userId: number, 
+    blockId?: number
+  ): Promise<{ valid: boolean; error?: string; availableSlots?: number }> {
     if (role !== UserRole.USER) {
       return {
         valid: false,
@@ -20,10 +26,13 @@ export class GraveService {
       };
     }
 
-    if (userGraveCount >= 1) {
+    // 检查用户是否可以创建新墓地
+    const canCreate = await GravePurchaseService.canUserCreateGrave(userId);
+    if (!canCreate.allowed) {
       return {
         valid: false,
-        error: '每个账号只能创建一个坟墓。'
+        error: canCreate.reason,
+        availableSlots: canCreate.availableSlots
       };
     }
 
@@ -35,7 +44,7 @@ export class GraveService {
       };
     }
 
-    return { valid: true };
+    return { valid: true, availableSlots: canCreate.availableSlots };
   }
 
   /**

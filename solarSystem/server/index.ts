@@ -6,6 +6,7 @@ import path from 'path';
 // 导入路由
 import authRoutes from './routes/auth_optimized';
 import earthRoutes from './routes/earth_optimized';
+import flowerRoutes from './routes/flowers';
 
 // 导入配置和数据库
 import config from './config/environment';
@@ -124,6 +125,7 @@ async function initializeServer(): Promise<void> {
     // ✅ 路由挂载
     app.use('/api/auth', authLimiter, authRoutes);
     app.use('/api/earth', earthRoutes);
+    app.use('/api/flowers', flowerRoutes);
 
     // ✅ 静态文件服务
     app.use(express.static(path.join(__dirname, '../dist')));
