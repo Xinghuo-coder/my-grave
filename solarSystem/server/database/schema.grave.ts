@@ -33,6 +33,9 @@ CREATE TABLE IF NOT EXISTS graves (
   inheritance_plan_url VARCHAR(500) COMMENT '遗产分配文档URL',
   
   social_accounts JSON COMMENT '社交账号（JSON数组）',
+
+  grave_data_encrypted BOOLEAN DEFAULT true COMMENT '坟墓信息是否已按账号加密存储',
+  grave_data_encryption_version VARCHAR(16) DEFAULT 'v1' COMMENT '坟墓信息加密版本（每账号独立密钥）',
   
   is_public BOOLEAN DEFAULT true COMMENT '是否公开',
   allow_comments BOOLEAN DEFAULT true COMMENT '是否允许评论',
@@ -47,6 +50,7 @@ CREATE TABLE IF NOT EXISTS graves (
   FOREIGN KEY (grave_block_id) REFERENCES grave_blocks(id),
   UNIQUE KEY unique_user_grave (user_id),
   INDEX idx_is_public (is_public),
+  INDEX idx_grave_data_encrypted (grave_data_encrypted),
   INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='坟墓信息表';

@@ -6,6 +6,7 @@ import type { GraveInfo, CreateGraveRequest, UpdateGraveRequest, SocialAccount }
 import type { GraveBlock } from '../types/block';
 import { BLOCK_RANGE_CONFIG } from '../types/block';
 import { UserRole } from '../types/user';
+import { GraveEncryptionService } from './GraveEncryptionService';
 
 export class GraveService {
   /**
@@ -213,5 +214,19 @@ export class GraveService {
     });
 
     return Math.round((completion / totalFields) * 100);
+  }
+
+  /**
+   * 存储前：按账号对坟墓信息进行独立加密
+   */
+  static encryptGraveForStorage<T extends object>(userId: number, graveData: T): T {
+    return GraveEncryptionService.encryptGravePayload(userId, graveData as Record<string, unknown>) as T;
+  }
+
+  /**
+   * 读取后：按账号对坟墓信息进行解密
+   */
+  static decryptGraveFromStorage<T extends object>(userId: number, encryptedGraveData: T): T {
+    return GraveEncryptionService.decryptGravePayload(userId, encryptedGraveData as Record<string, unknown>) as T;
   }
 }
