@@ -1,32 +1,45 @@
 /**
- * 地球热点区域API路由 - 优化版本
- * 使用服务层、async/await、添加缓存支持
+ * 地球热点区域API路由 - TypeScript版本
+ * 使用服务层、async/await、添加缓存支持、类型安全
  */
 
-const express = require('express');
-const router = express.Router();
-const HotspotService = require('../services/HotspotService');
+import express, { Request, Response, NextFunction, Router } from 'express';
+import HotspotService from '../services/HotspotService';
+
+const router: Router = express.Router();
+
+// 扩展 Session 类型
+declare module 'express-session' {
+  interface SessionData {
+    user?: {
+      id: number;
+      username: string;
+    };
+  }
+}
 
 /**
  * 保存热点信息
  */
-router.post('/save-hotspot', async (req, res, next) => {
+router.post('/save-hotspot', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     if (!req.session.user) {
-      return res.status(401).json({ 
+      res.status(401).json({ 
         success: false, 
         message: '请先登录' 
       });
+      return;
     }
     
     const { id, lat, lon, latRange, lonRange, note } = req.body;
     const userId = req.session.user.id;
     
     if (!id || !lat || !lon || !latRange || !lonRange) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: '缺少必要参数'
       });
+      return;
     }
     
     // ✅ 使用服务层保存
@@ -52,13 +65,14 @@ router.post('/save-hotspot', async (req, res, next) => {
 /**
  * 获取用户保存的热点列表
  */
-router.get('/my-hotspots', async (req, res, next) => {
+router.get('/my-hotspots', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     if (!req.session.user) {
-      return res.status(401).json({ 
+      res.status(401).json({ 
         success: false, 
         message: '请先登录' 
       });
+      return;
     }
     
     const userId = req.session.user.id;
@@ -81,13 +95,14 @@ router.get('/my-hotspots', async (req, res, next) => {
 /**
  * 获取特定热点详情
  */
-router.get('/hotspot/:id', async (req, res, next) => {
+router.get('/hotspot/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     if (!req.session.user) {
-      return res.status(401).json({ 
+      res.status(401).json({ 
         success: false, 
         message: '请先登录' 
       });
+      return;
     }
     
     const hotspotId = req.params.id;
@@ -97,10 +112,11 @@ router.get('/hotspot/:id', async (req, res, next) => {
     const hotspot = await HotspotService.getHotspotById(hotspotId, userId);
     
     if (!hotspot) {
-      return res.status(404).json({ 
+      res.status(404).json({ 
         success: false, 
         message: '热点不存在' 
       });
+      return;
     }
     
     res.json({ 
@@ -115,13 +131,14 @@ router.get('/hotspot/:id', async (req, res, next) => {
 /**
  * 删除热点
  */
-router.delete('/hotspot/:id', async (req, res, next) => {
+router.delete('/hotspot/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     if (!req.session.user) {
-      return res.status(401).json({ 
+      res.status(401).json({ 
         success: false, 
         message: '请先登录' 
       });
+      return;
     }
     
     const hotspotId = req.params.id;
@@ -131,10 +148,11 @@ router.delete('/hotspot/:id', async (req, res, next) => {
     const deleted = await HotspotService.deleteHotspot(hotspotId, userId);
     
     if (!deleted) {
-      return res.status(404).json({ 
+      res.status(404).json({ 
         success: false, 
         message: '热点不存在或已被删除' 
       });
+      return;
     }
     
     res.json({ 
@@ -149,13 +167,14 @@ router.delete('/hotspot/:id', async (req, res, next) => {
 /**
  * 获取用户热点数量
  */
-router.get('/my-hotspots/count', async (req, res, next) => {
+router.get('/my-hotspots/count', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     if (!req.session.user) {
-      return res.status(401).json({ 
+      res.status(401).json({ 
         success: false, 
         message: '请先登录' 
       });
+      return;
     }
     
     const userId = req.session.user.id;
@@ -173,13 +192,14 @@ router.get('/my-hotspots/count', async (req, res, next) => {
 /**
  * 获取范围内的热点 (用于地图渲染优化)
  */
-router.post('/hotspots-in-range', async (req, res, next) => {
+router.post('/hotspots-in-range', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     if (!req.session.user) {
-      return res.status(401).json({ 
+      res.status(401).json({ 
         success: false, 
         message: '请先登录' 
       });
+      return;
     }
     
     const userId = req.session.user.id;
@@ -187,10 +207,11 @@ router.post('/hotspots-in-range', async (req, res, next) => {
     
     if (latMin === undefined || latMax === undefined || 
         lonMin === undefined || lonMax === undefined) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: '缺少范围参数'
       });
+      return;
     }
     
     const hotspots = await HotspotService.getHotspotsInRange(
@@ -213,7 +234,7 @@ router.post('/hotspots-in-range', async (req, res, next) => {
 /**
  * 监控接口 - 获取热点统计信息
  */
-router.get('/stats', async (req, res, next) => {
+router.get('/stats', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     // TODO: 添加管理员权限检查
     const stats = await HotspotService.getStats();
@@ -227,4 +248,4 @@ router.get('/stats', async (req, res, next) => {
   }
 });
 
-module.exports = router;
+export default router;

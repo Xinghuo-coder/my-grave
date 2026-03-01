@@ -4,8 +4,8 @@ import session from 'express-session';
 import path from 'path';
 
 // 导入路由
-import authRoutes from './routes/auth_optimized';
-import earthRoutes from './routes/earth_optimized';
+import authRoutes from './routes/auth';
+import earthRoutes from './routes/earth';
 import flowerRoutes from './routes/flowers';
 
 // 导入配置和数据库

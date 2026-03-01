@@ -1,8 +1,25 @@
+/**
+ * 验证服务层 - TypeScript版本
+ * 处理邮箱和手机验证码的发送
+ */
+
+// TODO: 需要将VerificationCode模型迁移到TypeScript
 const VerificationCode = require('../models/VerificationCode');
 
+/**
+ * 验证服务响应接口
+ */
+interface VerificationResponse {
+  success: boolean;
+  message: string;
+  code?: string;
+}
+
 class VerificationService {
-  // 发送邮箱验证码（模拟）
-  static async sendEmailCode(email, purpose = 'register') {
+  /**
+   * 发送邮箱验证码（模拟）
+   */
+  static async sendEmailCode(email: string, purpose: string = 'register'): Promise<VerificationResponse> {
     try {
       const { code } = await VerificationCode.create('email', email, purpose);
       
@@ -26,8 +43,10 @@ class VerificationService {
     }
   }
 
-  // 发送手机验证码（模拟）
-  static async sendPhoneCode(phone, purpose = 'register') {
+  /**
+   * 发送手机验证码（模拟）
+   */
+  static async sendPhoneCode(phone: string, purpose: string = 'register'): Promise<VerificationResponse> {
     try {
       const { code } = await VerificationCode.create('phone', phone, purpose);
       
@@ -51,8 +70,10 @@ class VerificationService {
     }
   }
 
-  // 验证验证码
-  static async verifyCode(type, target, code, purpose) {
+  /**
+   * 验证验证码
+   */
+  static async verifyCode(type: string, target: string, code: string, purpose: string): Promise<VerificationResponse> {
     try {
       const isValid = await VerificationCode.verify(type, target, code, purpose);
       return {
@@ -69,4 +90,4 @@ class VerificationService {
   }
 }
 
-module.exports = VerificationService;
+export default VerificationService;
